@@ -30,6 +30,6 @@ while True:
                               step_secs=code['step'],
                               digits=code['digits'])
 
-    lcd.putstr(code['name'] + "\n" + password)
+    lcd.putstr(code['name'] + ' ' + str(expiry) + "\n" + password)
     time.sleep(0.5)
     lcd.clear()
