@@ -1,3 +1,7 @@
+# MIT License
+# Copyright (c) 2023 Tyler Peppy
+# https://github.com/T-622/RPI-PICO-I2C-LCD/blob/main/LICENSE.md
+
 import utime
 import gc
 
