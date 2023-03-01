@@ -1,46 +1,43 @@
 import time
+import ntptime
+import utime
+import network
+from machine import I2C, Pin
+from pico_i2c_lcd import I2cLcd
 
+i2c = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
+I2C_ADDR = i2c.scan()[0]
+lcd = I2cLcd(i2c, I2C_ADDR, 2, 16)
+sta_if = network.WLAN(network.STA_IF)
 
-def create_synchronised_time(display):
-    datetime = [2021, 1, 1, 1, 1, 0]
-    selected_idx = 0
+# https://docs.micropython.org/en/latest/esp8266/tutorial/network_basics.html
+def do_connect():
+    if not sta_if.isconnected():
+        lcd.putstr('Connecting to network...')
+        time.sleep(0.5)
+        lcd.clear()
+        sta_if.active(True)
+        sta_if.connect('<ssid>', '<key>')
 
-    display_width = display.get_width()
-    display_height = display.get_height()
+        while not sta_if.isconnected():
+            pass
 
-    while True:
-        if display.is_pressed(display.BUTTON_A):
-            selected_idx = (selected_idx + 1) % len(datetime)
-        if display.is_pressed(display.BUTTON_X):
-            datetime[selected_idx] += 1
-        if display.is_pressed(display.BUTTON_Y):
-            datetime[selected_idx] = max(datetime[selected_idx] - 1, 1)
-        if display.is_pressed(display.BUTTON_B):
-            break
+    lcd.putstr('Connected\n' + sta_if.ifconfig()[0])
+    time.sleep(0.5)
+    lcd.clear()
 
-        display.set_pen(0, 0, 0)
-        display.clear()
-
-        display.set_pen(255, 255, 255)
-
-        display.text("Next", 10, 10, 30, 2)
-        display.text("Inc", display_width - 40, 10, 30, 2)
-        display.text("Dec", display_width - 40, display_height - 20, 30, 2)
-        display.text("Confirm", 10, display_height - 20, 30, 2)
-
-        display.text("YYYY MM DD HH MM SS", 30,
-                     display_height // 2 - 10, display_width - 30, 2)
-        display.text(
-            " ".join("%s%02d" % (">" if idx == selected_idx else "", sep)
-                     for idx, sep in enumerate(datetime)),
-            30, display_height // 2 + 10, display_width - 30, 2)
-
-        display.update()
-        time.sleep(0.3)
-
-    delta = time.mktime(datetime + [0, 0]) - int(time.time())
-
+def create_synchronised_time():
+    ntptime.settime() # ntptime.py settime() does not cope with errors #7137 https://github.com/micropython/micropython/issues/7137
+    lcd.putstr('Synchronised')
+    time.sleep(0.5)
+    lcd.clear()
+    sta_if.active(False)
+    lcd.putstr('Disconnecting')
+    time.sleep(0.5)
+    lcd.clear()
+    
     def synchronised_time():
-        return int(time.time()) + delta
-
+        return int(utime.time())
+    
     return synchronised_time
+    

@@ -3,21 +3,18 @@
     "name": "AWS",
     "key": "DWRGVKRPQJLNU4GY",
     "digits": 6,
-    "step": 30,
-    "colour": "#FF0000"
+    "step": 30
   },
   {
     "name": "GitHub",
     "key": "DWRGVKRPQELNU4GY",
     "digits": 6,
-    "step": 30,
-    "colour": "#00FF00"
+    "step": 30
   },
   {
     "name": "Slack",
     "key": "DWRGEKRPQELNU4GY",
     "digits": 6,
-    "step": 30,
-    "colour": "#0000FF"
+    "step": 30
   }
 ]

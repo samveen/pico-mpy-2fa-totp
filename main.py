@@ -1,28 +1,26 @@
+from machine import I2C, Pin
 import time
 import json
-import picodisplay as display
 from totp import totp
-from synchronised_time import create_synchronised_time
+from pico_i2c_lcd import I2cLcd
 
-LED_BLINK_UNDER_SECONDS = 6
+from synchronised_time import create_synchronised_time, do_connect
 
+i2c = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
 
-def hex_to_rgb(hex):
-    return tuple(int(hex[i:i+2], 16) for i in (1, 3, 5))
+I2C_ADDR = i2c.scan()[0]
+lcd = I2cLcd(i2c, I2C_ADDR, 2, 16)
 
-
+button = Pin(16, Pin.IN, Pin.PULL_DOWN)
 codes = json.loads(open("codes.json", "r").read())
 selected_idx = 0
 
-display_width = display.get_width()
-display_buffer = bytearray(display_width * display.get_height() * 2)
-display.init(display_buffer)
-display.set_backlight(0.8)
+do_connect()
 
-synchronised_time = create_synchronised_time(display)
+synchronised_time = create_synchronised_time()
 
 while True:
-    if display.is_pressed(display.BUTTON_X):
+    if button.value():
         selected_idx = (selected_idx + 1) % len(codes)
 
     code = codes[selected_idx]
@@ -32,20 +30,6 @@ while True:
                               step_secs=code['step'],
                               digits=code['digits'])
 
-    colour = hex_to_rgb(code['colour'])
-    display.set_pen(*colour)
-    display.clear()
-    display.set_led(*colour
-                    if expiry <= LED_BLINK_UNDER_SECONDS and expiry % 2
-                    else (0, 0, 0))
-
-    display.set_pen(0, 0, 0)
-    display.text(code['name'], 10, 10, display_width - 10, 4)
-    display.text(password, 10, 60, display_width - 10, 6)
-
-    progress_width = display_width - \
-        (display_width // code['step'] * (expiry - 1))
-    display.rectangle(0, 125, progress_width, 10)
-
-    display.update()
+    lcd.putstr(code['name'] + ' ' + str(expiry) + "\n" + password)
     time.sleep(0.5)
+    lcd.clear()
