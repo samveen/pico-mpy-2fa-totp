@@ -15,6 +15,7 @@ Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi 
 
 - Connect the display to the Raspberry Pi Pico W.
 - Create a `codes.json` file (based on `codes.json.example`) which includes the desired TOTP keys.
+- Create a `WifiSecrets.json` file (based on `WifiSecrets.json.example`) which includes the common wifi SSIDs + passphrases available.
 - Flash the Pico W with the latest [MicroPython](https://micropython.org/download/rp2-pico-w/).
 - Configure WiFi network SSID and password on `synchronised_time.py`.
 - Copy the codebase to the Raspberry Pi Pico W.
