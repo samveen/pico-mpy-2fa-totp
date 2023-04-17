@@ -1,23 +1,26 @@
 from machine import Pin
 from time import sleep_ms,time
 import json
+
 from totp import totp
+
+import password
 import WSOledSpi
+import cryptor
 
 from synchronised_time import create_synchronised_time, do_connect
 
 lcd = WSOledSpi.get()
 
-button = Pin(15,Pin.IN,Pin.PULL_UP)
-keyNext= Pin(17,Pin.IN,Pin.PULL_UP)
-codes = json.loads(open("codes.json", "r").read())
+# Unlock secrets
+key=password.get(lcd)
+
+codes = json.loads(cryptor.decrypt("codes.json.encoded",key))
 selected_idx = 0
 code = None
 
-do_connect(lcd)
-
 # Do all required init i.e. manual time setting vs ntp
-synchronised_time = create_synchronised_time(lcd)
+synchronised_time = create_synchronised_time(lcd,key)
 
 # Begin,End markers for timer bar
 lcd.fill_rect(0,61,4,2,lcd.white)
@@ -29,13 +32,13 @@ loc=(lcd.width,lcd.height-4)
 
 while True:
     # Is a button pressed
-    if button.value() == 0:
+    if lcd.is_pressed(lcd.KEY0):
         selected_idx = (selected_idx + 1) % len(codes)
 
     # Did the selection change from last time
     if code != codes[selected_idx]:
         code = codes[selected_idx]
-        (password, expiry) = totp(synchronised_time(),
+        (passwd, expiry) = totp(synchronised_time(),
                                   code['key'],
                                   step_secs=code['step'],
                                   digits=code['digits'])
@@ -43,7 +46,7 @@ while True:
     # is it time to recalculate things yet?
     s=time()%30
     if s == 0:
-        (password, expiry) = totp(synchronised_time(),
+        (passwd, expiry) = totp(synchronised_time(),
                                   code['key'],
                                   step_secs=code['step'],
                                   digits=code['digits'])
@@ -51,7 +54,7 @@ while True:
     # Wipe previous text (first run wipes full screen except timer bar)
     lcd.fill_rect(0,0,128,loc[1],0x0000)
     loc=lcd.text(code['name'],0,0,0xffff)
-    loc=lcd.text(password,0,loc[1],0xffff)
+    loc=lcd.text(passwd,0,loc[1],0xffff)
 
     # Time left bar
     if s == 0:
