@@ -10,6 +10,9 @@ MOSI = 11
 SCK = 10
 CS = 9
 
+KEY0=15
+KEY1=17
+
 display=None
 
 class OLED_1inch3_SPI(framebuf.FrameBuffer):
@@ -42,6 +45,26 @@ class OLED_1inch3_SPI(framebuf.FrameBuffer):
 
         # Clear the screen on init - needs frambuf init, spi init and display init
         self.clear()
+
+        # Init Keys
+        self.KEY0=KEY0
+        self.KEY1=KEY1
+        self.key0=Pin(KEY0,Pin.IN,Pin.PULL_UP)
+        self.key1=Pin(KEY1,Pin.IN,Pin.PULL_UP)
+
+    def is_pressed(self, key):
+        if key == self.KEY0:
+            return not(self.key0.value())
+        elif key == self.KEY1:
+            return not(self.key1.value())
+        else:
+            return None
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
 
     def write_cmd(self, cmd):
         self.cs(1)
