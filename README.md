@@ -1,6 +1,6 @@
 # Raspberry Pi Pico/MicroPython 2FA TOTP Generator
 
-Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi Pico and a 20x4 or 16x2 [Character LCD](https://shopee.ph/1602-16x2-Character-LCD-Module-Display-HD44780-with-I2C-i.18252381.242465767).
+Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi Pico W and the [Waveshare Pico-Oled-1.3](https://www.waveshare.com/product/pico-oled-1.3.htm).
 
 <img src="example.gif" />
 
@@ -8,19 +8,38 @@ Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi 
 
 - Complete [MicroPython implementation](totp) of the TOTP specification (and underlying HMAC-SHA1, Base32 dependencies).
 - Countdown timer to present how long till the TOTP is about to expire.
-- Use WiFi network and NTP to set the current UTC time - to correct the Raspberry Pi Pico's RTC
+- Encrypt OTP code data with user password.
+- Use WiFi network and NTP to set the current UTC time - to correct the Raspberry Pi Pico W's RTC.
+- Reinvent old functionality for datetime input 3 buttons instead of 4, as fallback if no WiFi available. (Note 1 below)
+- Encrypt Wifi data with user password too
+
 
 ## Usage
 
-- Connect the [Character LCD](https://shopee.ph/1602-16x2-Character-LCD-Module-Display-HD44780-with-I2C-i.18252381.242465767) to the Raspberry Pi Pico.
+- Connect the display to the Raspberry Pi Pico W.
 - Create a `codes.json` file (based on `codes.json.example`) which includes the desired TOTP keys.
-- Flash the Raspberry Pi Pico with the latest [MicroPython with Pimoroni Libs](https://github.com/pimoroni/pimoroni-pico/releases/latest).
-- Copy the codebase to the Raspberry Pi Pico.
-- Configure WiFi network SSID and password on `synchronised_time.py`.
+- Create a `WifiSecrets.json` file (based on `WifiSecrets.json.example`) which includes the common wifi SSIDs + passphrases available.
+- Flash the Pico W with the latest [MicroPython](https://micropython.org/download/rp2-pico-w/).
+- Copy the codebase except `main.py` to the Raspberry Pi Pico W.
+- Open an interactive session on the Pico and encrypt the codes.json and WifiSecrets.json as below:
+```
+>>> import cryptor
+>>> cryptor.encrypt('codes.json','mypasswd')
+>>> cryptor.encrypt('WifiSecrets.json','mypasswd')
+```
+- Remove the unencrypted `WifiSecrets.json` and `codes.json` from the Pico W storage
+- Copy main.py to the Pico
+- Reset the Pico W
+- Enter your password at the initial password prompt.
+- Fix datetime at prompt if Wifi doesn't work.
 - Now you can cycle through your TOTP's using a button.
+
+
+Notes:
+1. The Bootsel button is used for user input as the pico-oled-1.3 only has 2 buttons
 
 ## Acknowledgements
 
-Forked from [pico-2fa-totp](https://github.com/eddmann/pico-2fa-totp) created by [Edd Mann](https://github.com/eddmann). 
+Forked from [Kleo's](https://github.com/kleo) [fork](https://github.com/kleo/pico-2fa-totp) of the [pico-2fa-totp](https://github.com/eddmann/pico-2fa-totp) created by [Edd Mann](https://github.com/eddmann).
 
-RPI PICO I2C LCD scripts from [RPI-PICO-I2C-LCD](https://github.com/T-622/RPI-PICO-I2C-LCD) created by [Tyler Peppy](https://github.com/T-622).
+Pico-oled-1.3 driver by [Waveshare](https://www.waveshare.com/wiki/Pico-OLED-1.3#Examples) updated with [nicer fonts](https://github.com/markwinap/Pycom-SH1107-I2C/blob/master/lib/SH1107.py).
