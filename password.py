@@ -5,7 +5,7 @@ def get(display):
     # year, month, day, hours, minutes, seconds)
     password=[0,0,0,0,0,0,0,0]
     # Rollover limits
-    chars=b'abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()+=/?[]{};:,.<>|~'
+    chars=b'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=/?[]{};:,.<>|~'
     clen=len(chars)
     selected_idx = 0
     max_idx=len(password)
