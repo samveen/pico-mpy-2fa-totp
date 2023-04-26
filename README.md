@@ -24,34 +24,61 @@ Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi 
 - Open an interactive session on the Pico and encrypt the `codes.json` and `WifiSecrets.json` as below:
 ```
 >>> import cryptor
->>> cryptor.encrypt('codes.json','mypasswd')
->>> cryptor.encrypt('WifiSecrets.json','mypasswd')
+>>> key='your8chr'
+>>> cryptor.encrypt('codes.json',key)
+>>> cryptor.encrypt('WifiSecrets.json',key)
 ```
 - Remove the unencrypted `WifiSecrets.json` and `codes.json` from the Pico W storage
 - Copy main.py to the Pico
 - Reset the Pico W
 - Enter your password at the initial password prompt.
-- Fix datetime at prompt if Wifi doesn't work.
+- Fix datetime at Date time prompt if Wifi doesn't work.
 - Now you can cycle through your TOTP's using Key0 of the Pico-Oled-1.3.
 - Key1 of the Pico-Oled-1.3 toggles the display ON/OFF.
 
-# Updating secrets
+## Password length, range and security
+
+The secrets are encrypted using a simple scheme using an 8 character password. However valid characters are any ASCII
+character with *the following exceptions*:
+- Space and non-blocking space
+- Quotes: `"`, `'`,`` ` `` (including backquote/backtick)
+- backslash - `\`,
+- Hyphen: `-`
+
+The password is taken as a 8 pairs of 2 digits, each pair representing the ordinal of a character of the password. Each digit takes
+a seperate input, leading to quicker input with just increment/decrement keys (worst case is 12 keypresses per characters encoded as
+numbers, as compared to 46 with incrementing characters)
+
+<img src="ICDe@dPp.jpg" />
+
+The SHA256 digest of this key is generated and used as the encryption key for the secret files.
+
+There are 89 valid characters (128 - 32 - 2 - 5) and so 89^8 possible passwords, so it's around a day's worth of effort to crack this scheme.
+
+However, additional security can be achieved by taking another number as input, and then running those many rounds of hashing on the hash results to generate the final hashed key.
+
+But that's future work for the paranoid forker.
+
+
+## Updating secrets
 
 - Connect to the REPL
 - Press CTRL-C to stop the code and bring up the prompt
 - Run the following code to dump the secrets files to console as plain text:
 ```
 >>> import cryptor
->>> print(cryptor.decrypt('codes.json.encoded','mypasswd').decode())
->>> print(cryptor.decrypt('WifiSecrets.json.encoded','mypasswd').decode())
+>>> key='your8chr'
+>>> print(cryptor.decrypt('codes.json.encoded',key).decode())
+>>> print(cryptor.decrypt('WifiSecrets.json.encoded',key).decode())
 ```
 - Copy the outputs into `codes.json` and `WifiSecrets.json` on your workstation, and update with new secrets as required.
 - Push the updated `codes.json` and `WifiSecrets.json` to the Pico W.
 - Encrypt `codes.json` and `WifiSecrets.json` and overwrite previous encoded files as below:
 ```
 >>> import cryptor
->>> cryptor.encrypt('codes.json','mypasswd')
->>> cryptor.encrypt('WifiSecrets.json','mypasswd')
+>>> key='your8chr'
+>>> cryptor.encrypt('codes.json',key)
+>>> cryptor.encrypt('WifiSecrets.json',key)
 ```
 - Remove the unencrypted `WifiSecrets.json` and `codes.json` from the Pico W storage.
 
