@@ -5,12 +5,12 @@ import json
 from totp import totp
 
 import password
-import WSOledSpi
+import PicoOled13
 import cryptor
 
 from synchronised_time import create_synchronised_time, do_connect
 
-lcd = WSOledSpi.get()
+lcd = PicoOled13.get()
 
 # Unlock secrets
 key=password.get(lcd)
