@@ -21,7 +21,7 @@ Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi 
 - Create a `WifiSecrets.json` file (based on `WifiSecrets.json.example`) which includes the common wifi SSIDs + passphrases available.
 - Flash the Pico W with the latest [MicroPython](https://micropython.org/download/rp2-pico-w/).
 - Copy the codebase except `main.py` to the Raspberry Pi Pico W.
-- Open an interactive session on the Pico and encrypt the codes.json and WifiSecrets.json as below:
+- Open an interactive session on the Pico and encrypt the `codes.json` and `WifiSecrets.json` as below:
 ```
 >>> import cryptor
 >>> cryptor.encrypt('codes.json','mypasswd')
@@ -32,8 +32,28 @@ Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi 
 - Reset the Pico W
 - Enter your password at the initial password prompt.
 - Fix datetime at prompt if Wifi doesn't work.
-- Now you can cycle through your TOTP's using a button.
+- Now you can cycle through your TOTP's using Key0 of the Pico-Oled-1.3.
+- Key1 of the Pico-Oled-1.3 toggles the display ON/OFF.
 
+# Updating secrets
+
+- Connect to the REPL
+- Press CTRL-C to stop the code and bring up the prompt
+- Run the following code to dump the secrets files to console as plain text:
+```
+>>> import cryptor
+>>> print(cryptor.decrypt('codes.json.encoded','mypasswd').decode())
+>>> print(cryptor.decrypt('WifiSecrets.json.encoded','mypasswd').decode())
+```
+- Copy the outputs into `codes.json` and `WifiSecrets.json` on your workstation, and update with new secrets as required.
+- Push the updated `codes.json` and `WifiSecrets.json` to the Pico W.
+- Encrypt `codes.json` and `WifiSecrets.json` and overwrite previous encoded files as below:
+```
+>>> import cryptor
+>>> cryptor.encrypt('codes.json','mypasswd')
+>>> cryptor.encrypt('WifiSecrets.json','mypasswd')
+```
+- Remove the unencrypted `WifiSecrets.json` and `codes.json` from the Pico W storage.
 
 Notes:
 1. The Bootsel button is used for user input as the pico-oled-1.3 only has 2 buttons
