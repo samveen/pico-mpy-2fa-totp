@@ -32,9 +32,13 @@ Generates Time-based One-Time Password's (TOTP) using MicroPython, Raspberry Pi 
 - Copy main.py to the Pico
 - Reset the Pico W
 - Enter your password at the initial password prompt.
+  - Key0 increments current selection
+  - Key1 decrements current selection
+  - Bootsel button steps to next selectable item.
 - Fix datetime at Date time prompt if Wifi doesn't work.
 - Now you can cycle through your TOTP's using Key0 of the Pico-Oled-1.3.
 - Key1 of the Pico-Oled-1.3 toggles the display ON/OFF.
+
 
 ## Password length, range and security
 
@@ -59,7 +63,6 @@ However, additional security can be achieved by taking another number as input, 
 
 But that's future work for the paranoid forker.
 
-
 ## Updating secrets
 
 - Connect to the REPL
@@ -82,8 +85,18 @@ But that's future work for the paranoid forker.
 ```
 - Remove the unencrypted `WifiSecrets.json` and `codes.json` from the Pico W storage.
 
-Notes:
-1. The Bootsel button is used for user input as the pico-oled-1.3 only has 2 buttons
+## Migrating from Google Authenticator
+
+Requirements:
+  - Workstation with git, python, internet
+  - Source device
+  - QR code scanner device
+
+- Export authenticator codes (this is done by the authenticator app as encoded strings further encoded as QR codes.
+- Scan the QR code to get the encoded strings (may be multiple sets, depending on the number of codes to migrate)
+- checkout https://github.com/brookst/otpauth\_migrate.git
+- Follow instructions there and run on the encoded strings to get decoded TOTP codes
+- Fill into codes.json and follow the process as previously mentioned.
 
 ## Acknowledgements
 
