@@ -2,3 +2,6 @@
 	path = pico-oled-1.3-driver
 	url = https://github.com/samveen/pico-oled-1.3-driver
 	branch = tags/v0.1.1
+[submodule "totp"]
+	path = totp
+	url = https://github.com/samveen/mpy-totp.git
